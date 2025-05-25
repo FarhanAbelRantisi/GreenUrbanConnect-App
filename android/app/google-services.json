@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1001090847975",
+    "project_id": "green-urban-connect",
+    "storage_bucket": "green-urban-connect.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1001090847975:android:90938d047790919bba3e42",
+        "android_client_info": {
+          "package_name": "com.example.green_urban_connect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWnBgQVqmM8jjRqSSniGZo61z9nczSq0w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
