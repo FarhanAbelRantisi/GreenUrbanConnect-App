@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:green_urban_connect/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:green_urban_connect/presentation/views/auth/login_screen.dart';
+import 'package:green_urban_connect/presentation/views/green_resources/green_resources_hub_screen.dart';
 import 'package:green_urban_connect/presentation/views/initiatives/initiatives_hub_screen.dart';
+import 'package:green_urban_connect/presentation/views/issues/report_issue_screen.dart';
+import 'package:green_urban_connect/presentation/views/issues/view_issues_screen.dart';
 import 'package:green_urban_connect/presentation/widgets/common/custom_button.dart';
 import 'package:provider/provider.dart';
 
@@ -53,18 +56,29 @@ class DashboardScreen extends StatelessWidget {
               icon: Icons.eco_outlined,
             ),
             const SizedBox(height: 16),
-            // Add more buttons for other features here
-            // CustomButton(
-            //   text: 'Report Urban Issue',
-            //   onPressed: () { /* Navigate to Report Issue Screen */ },
-            //   icon: Icons.report_problem_outlined,
-            // ),
-            // const SizedBox(height: 16),
-            // CustomButton(
-            //   text: 'Find Green Spaces',
-            //   onPressed: () { /* Navigate to Green Spaces Screen */ },
-            //   icon: Icons.park_outlined,
-            // ),
+            CustomButton(
+              text: 'Report Urban Issue',
+              onPressed: () {
+                context.push(ReportIssueScreen.routeName);
+              },
+              icon: Icons.report_problem_outlined,
+            ),
+            const SizedBox(height: 16),
+             CustomButton(
+              text: 'View Reported Issues',
+              onPressed: () {
+                context.push(ViewIssuesScreen.routeName);
+              },
+              icon: Icons.list_alt_outlined,
+            ),
+            const SizedBox(height: 16),
+            CustomButton(
+              text: 'Find Green Spaces & Resources',
+              onPressed: () {
+                context.push(GreenResourcesHubScreen.routeName);
+              },
+              icon: Icons.park_outlined,
+            ),
             const Expanded(
               child: Center(
                 child: Text(

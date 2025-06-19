@@ -36,16 +36,16 @@ class _SplashScreenState extends State<SplashScreen> {
         }
       }
     }).onError((error) {
-       if (mounted) {
+      if (mounted) {
         // Handle error, perhaps navigate to login or show an error message
         print("Error in auth stream: $error");
         context.go(LoginScreen.routeName);
-       }
+      }
     });
 
     // Initial check, in case the stream takes a moment
     if (authViewModel.currentUser != null && mounted) {
-       context.go(DashboardScreen.routeName);
+      context.go(DashboardScreen.routeName);
     } else if (mounted && authViewModel.currentUser == null && !authViewModel.isLoading) {
       // If not loading and no user, go to login.
       // This handles the case where the stream might not have emitted yet but initial check is done.

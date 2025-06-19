@@ -3,27 +3,26 @@ import 'package:go_router/go_router.dart';
 import 'package:green_urban_connect/presentation/views/auth/login_screen.dart';
 import 'package:green_urban_connect/presentation/views/auth/signup_screen.dart';
 import 'package:green_urban_connect/presentation/views/dashboard_screen.dart';
+import 'package:green_urban_connect/presentation/views/green_resources/green_resource_detail_screen.dart';
+import 'package:green_urban_connect/presentation/views/green_resources/green_resources_hub_screen.dart';
 import 'package:green_urban_connect/presentation/views/initiatives/initiative_detail_screen.dart';
 import 'package:green_urban_connect/presentation/views/initiatives/initiatives_hub_screen.dart';
 import 'package:green_urban_connect/presentation/views/initiatives/propose_initiative_screen.dart';
-import 'package:green_urban_connect/presentation/views/splash_screen.dart'; // We'll create this
+import 'package:green_urban_connect/presentation/views/issues/report_issue_screen.dart';
+import 'package:green_urban_connect/presentation/views/issues/view_issues_screen.dart';
+import 'package:green_urban_connect/presentation/views/auth/splash_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:green_urban_connect/core/services/service_locator.dart';
+import 'package:green_urban_connect/core/service/service_locator.dart';
 
 
 class AppRouter {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
-  // If you have nested navigation (e.g. for a BottomNavigationBar),
-  // you might define shellNavigatorKeys here.
 
-  // Auth redirect logic
   static String? _authRedirect(BuildContext context, GoRouterState state) {
     final auth = sl<FirebaseAuth>();
     if (auth.currentUser == null) {
-      // If not logged in, redirect to login, preserving the intended location
       return LoginScreen.routeName;
     }
-    // If logged in, allow access
     return null;
   }
 
@@ -58,18 +57,46 @@ class AppRouter {
         name: InitiativesHubScreen.routeName,
         builder: (context, state) => const InitiativesHubScreen(),
         redirect: _authRedirect,
-        routes: [ // Nested routes for initiative details and proposal
+        routes: [
           GoRoute(
-            path: 'propose', // e.g., /initiatives/propose
+            path: 'propose',
             name: ProposeInitiativeScreen.routeName,
             builder: (context, state) => const ProposeInitiativeScreen(),
           ),
           GoRoute(
-            path: ':initiativeId', // e.g., /initiatives/some-id-123
+            path: ':initiativeId',
             name: InitiativeDetailScreen.routeName,
             builder: (context, state) {
               final initiativeId = state.pathParameters['initiativeId']!;
               return InitiativeDetailScreen(initiativeId: initiativeId);
+            },
+          ),
+        ]
+      ),
+      GoRoute(
+        path: ReportIssueScreen.routeName,
+        name: ReportIssueScreen.routeName,
+        builder: (context, state) => const ReportIssueScreen(),
+        redirect: _authRedirect,
+      ),
+      GoRoute(
+        path: ViewIssuesScreen.routeName,
+        name: ViewIssuesScreen.routeName,
+        builder: (context, state) => const ViewIssuesScreen(),
+        redirect: _authRedirect,
+      ),
+      GoRoute(
+        path: GreenResourcesHubScreen.routeName,
+        name: GreenResourcesHubScreen.routeName,
+        builder: (context, state) => const GreenResourcesHubScreen(),
+        redirect: _authRedirect,
+        routes: [
+          GoRoute(
+            path: ':resourceId', // e.g., /green-resources/some-id-123
+            name: GreenResourceDetailScreen.routeName,
+            builder: (context, state) {
+              final resourceId = state.pathParameters['resourceId']!;
+              return GreenResourceDetailScreen(resourceId: resourceId);
             },
           ),
         ]

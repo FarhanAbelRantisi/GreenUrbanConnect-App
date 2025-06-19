@@ -41,6 +41,12 @@ dependencies:
   go_router: ^14.0.0 # Use latest
   get_it: ^7.6.0 # Use latest
   intl: ^0.19.0
+  image_picker: ^1.1.2 # Or latest version, for picking images
+  firebase_storage: ^12.1.0 # Or latest version, for storing images:
+  geolocator: ^12.0.0 # Or latest version
+  geocoding: ^3.0.0 # Or latest version
+  url_launcher: ^6.3.0
+  http: ^1.2.1
 
 dev_dependencies:
   flutter_test:
