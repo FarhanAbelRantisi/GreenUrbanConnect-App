@@ -24,7 +24,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-      ),
+      ), 
     ),
     inputDecorationTheme: InputDecorationTheme(
       border: OutlineInputBorder(
@@ -38,7 +38,7 @@ class AppTheme {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: Colors.green[700]!),
-      ),
+      ), 
       labelStyle: TextStyle(color: Colors.grey[700]),
       hintStyle: TextStyle(color: Colors.grey[500]),
     ),
@@ -77,7 +77,7 @@ class AppTheme {
       ),
       iconTheme: const IconThemeData(color: Colors.white),
     ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
+    elevatedButtonTheme: ElevatedButtonThemeData( 
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.green[700],
         foregroundColor: Colors.white,
@@ -88,8 +88,8 @@ class AppTheme {
         ),
       ),
     ),
-    inputDecorationTheme: InputDecorationTheme(
-      border: OutlineInputBorder(
+    inputDecorationTheme: InputDecorationTheme( 
+      border: OutlineInputBorder( 
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: Colors.grey[700]!),
       ),

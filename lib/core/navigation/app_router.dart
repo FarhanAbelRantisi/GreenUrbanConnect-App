@@ -1,31 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:green_urban_connect/presentation/views/auth/login_screen.dart';
-import 'package:green_urban_connect/presentation/views/auth/signup_screen.dart';
-import 'package:green_urban_connect/presentation/views/dashboard_screen.dart';
-import 'package:green_urban_connect/presentation/views/green_resources/green_resource_detail_screen.dart';
-import 'package:green_urban_connect/presentation/views/green_resources/green_resources_hub_screen.dart';
-import 'package:green_urban_connect/presentation/views/initiatives/initiative_detail_screen.dart';
-import 'package:green_urban_connect/presentation/views/initiatives/initiatives_hub_screen.dart';
-import 'package:green_urban_connect/presentation/views/initiatives/propose_initiative_screen.dart';
-import 'package:green_urban_connect/presentation/views/issues/report_issue_screen.dart';
-import 'package:green_urban_connect/presentation/views/issues/view_issues_screen.dart';
-import 'package:green_urban_connect/presentation/views/auth/splash_screen.dart';
+import 'package:green_urban_connect/views/screen/auth/login_screen.dart';
+import 'package:green_urban_connect/views/screen/auth/signup_screen.dart';
+import 'package:green_urban_connect/views/dashboard_screen.dart';
+import 'package:green_urban_connect/views/screen/green%20resources/green_resource_detail_screen.dart';
+import 'package:green_urban_connect/views/screen/green%20resources/green_resources_hub_screen.dart';
+import 'package:green_urban_connect/views/screen/initiatives/initiative_detail_screen.dart';
+import 'package:green_urban_connect/views/screen/initiatives/initiatives_hub_screen.dart';
+import 'package:green_urban_connect/views/screen/initiatives/propose_initiative_screen.dart';
+import 'package:green_urban_connect/views/screen/issues/report_issue_screen.dart';
+import 'package:green_urban_connect/views/screen/issues/view_issues_screen.dart';
+import 'package:green_urban_connect/views/screen/auth/splash_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:green_urban_connect/core/service/service_locator.dart';
 
 
 class AppRouter {
-  static final _rootNavigatorKey = GlobalKey<NavigatorState>();
+  static final _rootNavigatorKey = GlobalKey<NavigatorState>(); 
 
-  static String? _authRedirect(BuildContext context, GoRouterState state) {
-    final auth = sl<FirebaseAuth>();
-    if (auth.currentUser == null) {
-      return LoginScreen.routeName;
+  static String? _authRedirect(BuildContext context, GoRouterState state) { 
+    final auth = sl<FirebaseAuth>(); 
+    if (auth.currentUser == null) { 
+      return LoginScreen.routeName; 
     }
-    return null;
+    return null; 
   }
-
 
   static final GoRouter router = GoRouter(
     navigatorKey: _rootNavigatorKey,
@@ -39,7 +38,7 @@ class AppRouter {
       GoRoute(
         path: LoginScreen.routeName,
         name: LoginScreen.routeName,
-        builder: (context, state) => const LoginScreen(),
+        builder: (context, state) => const LoginScreen(), 
       ),
       GoRoute(
         path: SignupScreen.routeName,
@@ -50,29 +49,27 @@ class AppRouter {
         path: DashboardScreen.routeName,
         name: DashboardScreen.routeName,
         builder: (context, state) => const DashboardScreen(),
-        redirect: _authRedirect,
+        redirect: _authRedirect, 
       ),
       GoRoute(
-        path: InitiativesHubScreen.routeName,
-        name: InitiativesHubScreen.routeName,
-        builder: (context, state) => const InitiativesHubScreen(),
-        redirect: _authRedirect,
-        routes: [
-          GoRoute(
-            path: 'propose',
-            name: ProposeInitiativeScreen.routeName,
-            builder: (context, state) => const ProposeInitiativeScreen(),
-          ),
-          GoRoute(
-            path: ':initiativeId',
-            name: InitiativeDetailScreen.routeName,
-            builder: (context, state) {
-              final initiativeId = state.pathParameters['initiativeId']!;
-              return InitiativeDetailScreen(initiativeId: initiativeId);
-            },
-          ),
-        ]
-      ),
+          path: InitiativesHubScreen.routeName,
+          name: InitiativesHubScreen.routeName,
+          builder: (context, state) => const InitiativesHubScreen(),
+          redirect: _authRedirect,
+          routes: [
+            GoRoute(
+              path: 'propose',
+              name: ProposeInitiativeScreen.routeName,
+              builder: (context, state) => const ProposeInitiativeScreen(),
+            ),
+            GoRoute(
+                path: ':initiativeId',
+                name: InitiativeDetailScreen.routeName,
+                builder: (context, state) {
+                  final initiativeId = state.pathParameters['initiativeId']!;
+                  return InitiativeDetailScreen(initiativeId: initiativeId);
+                }),
+          ]),
       GoRoute(
         path: ReportIssueScreen.routeName,
         name: ReportIssueScreen.routeName,
@@ -81,26 +78,25 @@ class AppRouter {
       ),
       GoRoute(
         path: ViewIssuesScreen.routeName,
-        name: ViewIssuesScreen.routeName,
+        name: ViewIssuesScreen.routeName, 
         builder: (context, state) => const ViewIssuesScreen(),
         redirect: _authRedirect,
       ),
       GoRoute(
-        path: GreenResourcesHubScreen.routeName,
-        name: GreenResourcesHubScreen.routeName,
-        builder: (context, state) => const GreenResourcesHubScreen(),
-        redirect: _authRedirect,
-        routes: [
-          GoRoute(
-            path: ':resourceId', // e.g., /green-resources/some-id-123
-            name: GreenResourceDetailScreen.routeName,
-            builder: (context, state) {
-              final resourceId = state.pathParameters['resourceId']!;
-              return GreenResourceDetailScreen(resourceId: resourceId);
-            },
-          ),
-        ]
-      ),
+          path: GreenResourcesHubScreen.routeName,
+          name: GreenResourcesHubScreen.routeName,
+          builder: (context, state) => const GreenResourcesHubScreen(),
+          redirect: _authRedirect,
+          routes: [
+            GoRoute(
+              path: ':resourceId', // e.g., /green-resources/some-id-123
+              name: GreenResourceDetailScreen.routeName,
+              builder: (context, state) {
+                final resourceId = state.pathParameters['resourceId']!;
+                return GreenResourceDetailScreen(resourceId: resourceId);
+              },
+            ),
+          ]),
       // Add other routes here
     ],
     errorBuilder: (context, state) => Scaffold(

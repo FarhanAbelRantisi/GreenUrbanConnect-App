@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:green_urban_connect/main.dart';
-import 'package:green_urban_connect/presentation/views/dashboard_screen.dart';
+import 'package:green_urban_connect/views/dashboard_screen.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {

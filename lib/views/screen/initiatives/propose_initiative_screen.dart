@@ -1,0 +1,190 @@
+import 'package:flutter/material.dart';
+import 'package:green_urban_connect/data_domain/models/initiative_model.dart';
+import 'package:green_urban_connect/viewmodel/initiatives_viewmodel.dart';
+import 'package:green_urban_connect/views/widgets/common/custom_button.dart';
+import 'package:green_urban_connect/views/widgets/common/custom_textfield.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart'; // For date formatting and picking
+import 'package:go_router/go_router.dart'; // For navigation
+
+class ProposeInitiativeScreen extends StatefulWidget {
+  static const routeName = 'propose-initiative'; // Used for named routes within a shell
+  const ProposeInitiativeScreen({super.key});
+
+  @override
+  State<ProposeInitiativeScreen> createState() => _ProposeInitiativeScreenState();
+}
+
+class _ProposeInitiativeScreenState extends State<ProposeInitiativeScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _locationController = TextEditingController();
+  final _imageUrlController = TextEditingController(); // Optional
+
+  DateTime _selectedDate = DateTime.now();
+  InitiativeCategory _selectedCategory = InitiativeCategory.other; // Default category
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    _locationController.dispose();
+    _imageUrlController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(DateTime.now().year + 5),
+    );
+    if (picked != null && picked != _selectedDate) {
+      // Combine with time if needed, or just use the date
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(_selectedDate),
+      );
+      if (pickedTime != null) {
+        setState(() {
+          _selectedDate = DateTime(
+            picked.year,
+            picked.month,
+            picked.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+        });
+      }
+    }
+  }
+
+  void _submitForm(InitiativesViewModel viewModel) async {
+    if (_formKey.currentState!.validate()) {
+      final newInitiative = InitiativeModel(
+        title: _titleController.text.trim(),
+        description: _descriptionController.text.trim(),
+        location: _locationController.text.trim(),
+        date: _selectedDate,
+        category: _selectedCategory,
+        imageUrl: _imageUrlController.text.trim().isNotEmpty ? _imageUrlController.text.trim() : null,
+        organizerId: '', // This will be set in the ViewModel using AuthViewModel
+      );
+
+      final success = await viewModel.addInitiative(newInitiative);
+
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Initiative proposed successfully!'), backgroundColor: Colors.green),
+          );
+          context.pop(); // Go back to the initiatives hub screen
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(viewModel.errorMessage ?? 'Failed to propose initiative.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final initiativesViewModel = Provider.of<InitiativesViewModel>(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Propose New Initiative'),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              CustomTextField(
+                controller: _titleController,
+                labelText: 'Initiative Title',
+                hintText: 'e.g., Community Park Clean-up',
+                validator: (value) => value == null || value.isEmpty ? 'Please enter a title' : null,
+                prefixIcon: Icons.title,
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                controller: _descriptionController,
+                labelText: 'Description',
+                hintText: 'Detailed information about the initiative',
+                maxLines: 3,
+                validator: (value) => value == null || value.isEmpty ? 'Please enter a description' : null,
+                prefixIcon: Icons.description_outlined,
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                controller: _locationController,
+                labelText: 'Location',
+                hintText: 'e.g., Central Park, Main Street',
+                validator: (value) => value == null || value.isEmpty ? 'Please enter a location' : null,
+                prefixIcon: Icons.location_on_outlined,
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                controller: _imageUrlController,
+                labelText: 'Image URL (Optional)',
+                hintText: 'e.g., [https://example.com/image.png](https://example.com/image.png)',
+                keyboardType: TextInputType.url,
+                prefixIcon: Icons.image_outlined,
+              ),
+              const SizedBox(height: 16),
+              // Date Picker
+              ListTile(
+                leading: const Icon(Icons.calendar_today_outlined),
+                title: Text('Date & Time: ${DateFormat.yMMMMd().add_jm().format(_selectedDate)}'),
+                trailing: const Icon(Icons.edit_calendar_outlined),
+                onTap: () => _pickDate(context),
+                contentPadding: EdgeInsets.zero,
+              ),
+              const SizedBox(height: 16),
+              // Category Picker
+              DropdownButtonFormField<InitiativeCategory>(
+                decoration: InputDecoration(
+                  labelText: 'Category',
+                  prefixIcon: Icon(Icons.category_outlined, color: Theme.of(context).primaryColorLight),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                value: _selectedCategory,
+                items: InitiativeCategory.values.map((InitiativeCategory category) {
+                  return DropdownMenuItem<InitiativeCategory>(
+                    value: category,
+                    child: Text(category.name.replaceAllMapped(RegExp(r'[A-Z]'), (match) => ' ${match.group(0)}').trimLeft()), // Format name
+                  );
+                }).toList(),
+                onChanged: (InitiativeCategory? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      _selectedCategory = newValue;
+                    });
+                  }
+                },
+                validator: (value) => value == null ? 'Please select a category' : null,
+              ),
+              const SizedBox(height: 24),
+              initiativesViewModel.isSubmitting
+                  ? const Center(child: CircularProgressIndicator())
+                  : CustomButton(
+                      text: 'Submit Proposal',
+                      onPressed: () => _submitForm(initiativesViewModel),
+                      icon: Icons.send_outlined,
+                    ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:green_urban_connect/core/theme/app_theme.dart';
 import 'package:green_urban_connect/core/navigation/app_router.dart';
-import 'package:green_urban_connect/presentation/viewmodels/green_resources_viewmodel.dart';
-import 'package:green_urban_connect/presentation/viewmodels/initiatives_viewmodel.dart';
-import 'package:green_urban_connect/presentation/viewmodels/urban_issue_viewmodel.dart';
+import 'package:green_urban_connect/viewmodel/green_resources_viewmodel.dart';
+import 'package:green_urban_connect/viewmodel/initiatives_viewmodel.dart';
+import 'package:green_urban_connect/viewmodel/urban_issue_viewmodel.dart';
 import 'package:provider/provider.dart';
-import 'package:green_urban_connect/presentation/viewmodels/auth_viewmodel.dart';
+import 'package:green_urban_connect/viewmodel/auth_viewmodel.dart';
 import 'package:green_urban_connect/core/service/service_locator.dart';
 
 class AppWidget extends StatelessWidget {
