@@ -37,7 +37,7 @@ git clone https://github.com/FarhanAbelRantisi/GreenUrbanConnect-App.git
 2. Navigate into the project directory
 
 ```bash
-cd green-urban-connect
+cd GreenUrbanConnect-App
 `````
 
 3. Install dependencies
