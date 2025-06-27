@@ -46,13 +46,7 @@ cd GreenUrbanConnect-App
 flutter pub get
 `````
 
-4. Configure Firebase
-
-```bash
-Add your google-services.json file to /android/app.
-`````
-
-5. Run the app
+4. Run the app
 
 ```bash
 flutter run
