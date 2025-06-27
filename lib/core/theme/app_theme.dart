@@ -77,7 +77,7 @@ class AppTheme {
       ),
       iconTheme: const IconThemeData(color: Colors.white),
     ),
-    elevatedButtonTheme: ElevatedButtonThemeData( 
+    elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.green[700],
         foregroundColor: Colors.white,
@@ -88,8 +88,8 @@ class AppTheme {
         ),
       ),
     ),
-    inputDecorationTheme: InputDecorationTheme( 
-      border: OutlineInputBorder( 
+    inputDecorationTheme: InputDecorationTheme(
+      border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: Colors.grey[700]!),
       ),

@@ -16,14 +16,14 @@ import 'package:green_urban_connect/core/service/service_locator.dart';
 
 
 class AppRouter {
-  static final _rootNavigatorKey = GlobalKey<NavigatorState>(); 
+  static final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
-  static String? _authRedirect(BuildContext context, GoRouterState state) { 
-    final auth = sl<FirebaseAuth>(); 
-    if (auth.currentUser == null) { 
-      return LoginScreen.routeName; 
+  static String? _authRedirect(BuildContext context, GoRouterState state) {
+    final auth = sl<FirebaseAuth>();
+    if (auth.currentUser == null) {
+      return LoginScreen.routeName;
     }
-    return null; 
+    return null;
   }
 
   static final GoRouter router = GoRouter(
@@ -38,7 +38,7 @@ class AppRouter {
       GoRoute(
         path: LoginScreen.routeName,
         name: LoginScreen.routeName,
-        builder: (context, state) => const LoginScreen(), 
+        builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
         path: SignupScreen.routeName,
@@ -49,7 +49,7 @@ class AppRouter {
         path: DashboardScreen.routeName,
         name: DashboardScreen.routeName,
         builder: (context, state) => const DashboardScreen(),
-        redirect: _authRedirect, 
+        redirect: _authRedirect,
       ),
       GoRoute(
           path: InitiativesHubScreen.routeName,
@@ -78,7 +78,7 @@ class AppRouter {
       ),
       GoRoute(
         path: ViewIssuesScreen.routeName,
-        name: ViewIssuesScreen.routeName, 
+        name: ViewIssuesScreen.routeName,
         builder: (context, state) => const ViewIssuesScreen(),
         redirect: _authRedirect,
       ),

@@ -51,7 +51,7 @@ void setupServiceLocator() {
         overpassApiSource: sl(),
         openChargeMapApiSource: sl(),
         transportApiSource: sl(),
-      )); 
+      ));
 
   // --- Use Cases ---
   // Auth

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:green_urban_connect/data_domain/models/initiative_model.dart';
 
-abstract class FirestoreInitiativeSource { 
+abstract class FirestoreInitiativeSource {
   Future<List<InitiativeModel>> getInitiatives();
   Future<String> addInitiative(InitiativeModel initiative);
   Future<InitiativeModel?> getInitiativeById(String id);
