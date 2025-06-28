@@ -37,7 +37,7 @@ git clone https://github.com/FarhanAbelRantisi/GreenUrbanConnect-App.git
 2. Navigate into the project directory
 
 ```bash
-cd GreenUrbanConnect-App
+cd green_urban_connect
 `````
 
 3. Install dependencies
@@ -100,9 +100,14 @@ Please make sure your code follows proper formatting and includes documentation/
 
 ## 📦 Download APK
 Download pre-built APKs for testing:
-📥 ARM64 APK
-📥 ARM32 APK
-📥 x86_64 APK
+
+📥 FAT/ALL APK: https://drive.google.com/file/d/1T69yBwikbRlK_zdAXwhIwIRRDIgVwV96/view?usp=sharing
+
+📥 ARM64 APK: https://drive.google.com/file/d/1TUu643AjrcAA-TwUKTjpzkvRbYS-FDj0/view?usp=drive_link
+
+📥 ARM32 APK: https://drive.google.com/file/d/1U29KzoRkk3ZI2j6hmlcps6cgTwxght5M/view?usp=drive_link
+
+📥 x86_64 APK: https://drive.google.com/file/d/1KAAGKXPn_goradYdzT67rmi2Jaay4x3K/view?usp=drive_link
 
 ---
 
