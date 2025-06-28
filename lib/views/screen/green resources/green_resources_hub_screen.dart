@@ -49,7 +49,7 @@ class _GreenResourcesHubScreenState extends State<GreenResourcesHubScreen> {
             itemBuilder: (BuildContext context) {
               return <PopupMenuEntry<GreenResourceType?>>[
                 const PopupMenuItem<GreenResourceType?>(
-                  value: null, 
+                  value: null,
                   child: Text('Semua Tipe'),
                 ),
                 ...GreenResourceType.values.map((type) {
@@ -146,7 +146,7 @@ class _GreenResourcesHubScreenState extends State<GreenResourcesHubScreen> {
               // Detail screen mungkin perlu logika untuk menangani sumber yang berbeda.
               context.pushNamed(
                 GreenResourceDetailScreen.routeName,
-                pathParameters: {'resourceId': resource.id}, 
+                pathParameters: {'resourceId': resource.id},
               );
             },
           );

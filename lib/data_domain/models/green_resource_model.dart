@@ -73,8 +73,4 @@ class GreenResourceModel {
       default: return Icons.place_outlined;
     }
   }
-
-  // Catatan: fromFirestore dan toFirestore mungkin tidak lagi menjadi fokus utama
-  // jika data sepenuhnya berasal dari API, kecuali untuk cache atau data manual.
-  // Untuk saat ini, kita biarkan dulu.
 }

@@ -94,9 +94,6 @@ class GreenResourcesViewModel extends ChangeNotifier {
 
   void setFilterType(GreenResourceType? type) {
     _selectedFilterType = type;
-    // Tidak perlu fetch ulang di sini karena 'resources' getter sudah menghandle filter
-    // Jika ingin fetch ulang dari API dengan filter, panggil:
-    // fetchGreenResources(types: type != null ? [type] : null);
     notifyListeners();
   }
 }

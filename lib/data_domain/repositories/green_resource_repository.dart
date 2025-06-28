@@ -52,15 +52,15 @@ class GreenResourceRepositoryImpl implements IGreenResourceRepository {
       }
     } catch (e) {
       print("Error di GreenResourceRepositoryImpl: $e");
-}
-if (typesToFetch != null && typesToFetch.isNotEmpty){
-return allResources.where((res) => typesToFetch.contains(res.type)).toList();
-}
-return allResources;
-}
-@override
-Future<GreenResourceModel?> getGreenResourceById(String id, GreenResourceSource source) async {
-print("Fungsi getGreenResourceById belum diimplementasikan sepenuhnya untuk mengambil detail dari API asal.");
-return null; // Placeholder
-}
+      }
+      if (typesToFetch != null && typesToFetch.isNotEmpty){
+      return allResources.where((res) => typesToFetch.contains(res.type)).toList();
+      }
+      return allResources;
+      }
+      @override
+      Future<GreenResourceModel?> getGreenResourceById(String id, GreenResourceSource source) async {
+      print("Fungsi getGreenResourceById belum diimplementasikan sepenuhnya untuk mengambil detail dari API asal.");
+      return null; // Placeholder
+      }
 }

@@ -12,7 +12,6 @@ class OpenChargeMapApiSourceImpl implements OpenChargeMapApiSource {
 
   @override
   Future<List<GreenResourceModel>> fetchEVChargingStations({required double latitude, required double longitude}) async {
-    // This is a placeholder implementation. Replace with actual API call logic.
     print('Fetching EV stations from OpenChargeMap API...');
     return [];
   }

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:green_urban_connect/data_domain/models/initiative_model.dart';
 import 'package:green_urban_connect/views/screen/auth/login_screen.dart';
 import 'package:green_urban_connect/views/screen/auth/signup_screen.dart';
 import 'package:green_urban_connect/views/dashboard_screen.dart';
 import 'package:green_urban_connect/views/screen/green%20resources/green_resource_detail_screen.dart';
 import 'package:green_urban_connect/views/screen/green%20resources/green_resources_hub_screen.dart';
+import 'package:green_urban_connect/views/screen/initiatives/edit_initiative_screen.dart';
 import 'package:green_urban_connect/views/screen/initiatives/initiative_detail_screen.dart';
 import 'package:green_urban_connect/views/screen/initiatives/initiatives_hub_screen.dart';
 import 'package:green_urban_connect/views/screen/initiatives/propose_initiative_screen.dart';
@@ -61,6 +63,11 @@ class AppRouter {
               path: 'propose',
               name: ProposeInitiativeScreen.routeName,
               builder: (context, state) => const ProposeInitiativeScreen(),
+            ),
+            GoRoute(
+              path: '/edit-initiative',
+              name: EditInitiativeScreen.routeName,
+              builder: (context, state) => EditInitiativeScreen(initiative: state.extra as InitiativeModel),
             ),
             GoRoute(
                 path: ':initiativeId',

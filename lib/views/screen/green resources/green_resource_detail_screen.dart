@@ -65,7 +65,7 @@ class _GreenResourceDetailScreenState extends State<GreenResourceDetailScreen> {
 
   Future<void> _launchPhoneUrl(String phoneNumber) async {
     final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber.replaceAll(RegExp(r'[^0-9+]'), '')); // Bersihkan nomor telepon
-     if (await canLaunchUrl(phoneUri)) {
+    if (await canLaunchUrl(phoneUri)) {
       await launchUrl(phoneUri);
     } else {
       if(mounted) {
@@ -82,8 +82,7 @@ class _GreenResourceDetailScreenState extends State<GreenResourceDetailScreen> {
     final viewModel = Provider.of<GreenResourcesViewModel>(context);
     // Ambil resource dari _selectedResource yang di-set oleh fetchGreenResourceById
     // atau langsung dari daftar jika ID cocok (seperti yang dilakukan di initState)
-    final resource = viewModel.selectedResource ?? 
-                     viewModel.resources.firstWhere((r) => r.id == widget.resourceId, orElse: () => null as GreenResourceModel);
+    final resource = viewModel.selectedResource ?? viewModel.resources.firstWhere((r) => r.id == widget.resourceId, orElse: () => null as GreenResourceModel);
 
 
     return Scaffold(
