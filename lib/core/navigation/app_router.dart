@@ -14,7 +14,7 @@ import 'package:green_urban_connect/views/screen/issues/report_issue_screen.dart
 import 'package:green_urban_connect/views/screen/issues/view_issues_screen.dart';
 import 'package:green_urban_connect/views/screen/auth/splash_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:green_urban_connect/core/service/service_locator.dart';
+import 'package:green_urban_connect/data_domain/di/dependency_injection.dart';
 
 
 class AppRouter {

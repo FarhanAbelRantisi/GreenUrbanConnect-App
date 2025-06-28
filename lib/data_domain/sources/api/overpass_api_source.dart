@@ -1,12 +1,14 @@
+// lib/data_domain/sources/api/overpass_api_source.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:green_urban_connect/data_domain/models/green_resource_model.dart';
 
 abstract class OverpassApiSource {
-  Future<List<GreenResourceModel>> fetchGreenSpaces(double lat, double lon, {double radius = 5000}); // radius dalam meter
+  Future<List<GreenResourceModel>> fetchGreenSpaces(double lat, double lon, {double radius = 5000});
   Future<List<GreenResourceModel>> fetchRecyclingCenters(double lat, double lon, {double radius = 5000});
   Future<List<GreenResourceModel>> fetchBikeSharing(double lat, double lon, {double radius = 5000});
   Future<List<GreenResourceModel>> fetchDrinkingWater(double lat, double lon, {double radius = 5000});
+  Future<List<GreenResourceModel>> fetchFromOverpass(String query);
 }
 
 class OverpassApiSourceImpl implements OverpassApiSource {
@@ -15,94 +17,108 @@ class OverpassApiSourceImpl implements OverpassApiSource {
 
   OverpassApiSourceImpl(this.client);
 
-  Future<List<GreenResourceModel>> _fetchFromOverpass(String query) async {
-    final response = await client.post(
-      Uri.parse(_baseUrl),
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: {'data': query},
-    );
+  @override
+  Future<List<GreenResourceModel>> fetchFromOverpass(String query) async {
+    print('Executing Overpass query: $query');
+    try {
+      final response = await client.post(
+        Uri.parse(_baseUrl),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: {'data': query},
+      );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final List<GreenResourceModel> resources = [];
-      if (data['elements'] != null) {
-        for (var element in data['elements']) {
-          final tags = element['tags'];
-          if (tags != null) {
-            String name = tags['name'] ?? 'Tanpa Nama';
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<GreenResourceModel> resources = [];
+        if (data['elements'] != null) {
+          for (var element in data['elements']) {
+            final tags = element['tags'];
+            if (tags == null) continue;
+
+            String name = tags['name'] ?? 'Unnamed Resource';
             String address = _formatAddress(tags);
-            GreenResourceType type = GreenResourceType.other; // Default
+            GreenResourceType type = GreenResourceType.other;
             String osmId = '${element['type']}_${element['id']}';
 
-            // Logika untuk menentukan tipe berdasarkan tag OSM
-            if (element['type'] == 'node' || element['type'] == 'way' || element['type'] == 'relation') {
-                if (tags['leisure'] == 'park' || tags['leisure'] == 'garden' || tags['boundary'] == 'national_park' || tags['boundary'] == 'protected_area') {
-                    type = GreenResourceType.park;
-                } else if (tags['landuse'] == 'allotments' || (tags['leisure'] == 'garden' && tags['community'] != null)) {
-                    type = GreenResourceType.communityGarden;
-                } else if (tags['amenity'] == 'recycling') {
-                    type = GreenResourceType.recyclingCenter;
-                } else if (tags['amenity'] == 'marketplace' && (tags['produce'] != null || tags['organic'] != null || name.toLowerCase().contains('tani'))) {
-                    type = GreenResourceType.farmersMarket;
-                } else if (tags['amenity'] == 'bicycle_rental' || tags['amenity'] == 'bicycle_sharing') {
-                    type = GreenResourceType.bikeSharingStation;
-                } else if (tags['amenity'] == 'drinking_water') {
-                    type = GreenResourceType.waterFountain;
-                }
+            if (element['type'] == 'node' ||
+                element['type'] == 'way' ||
+                element['type'] == 'relation') {
+              if (tags['leisure'] == 'park' ||
+                  tags['leisure'] == 'garden' ||
+                  tags['boundary'] == 'national_park' ||
+                  tags['boundary'] == 'protected_area') {
+                type = GreenResourceType.park;
+              } else if (tags['landuse'] == 'allotments' ||
+                  (tags['leisure'] == 'garden' && tags['community'] != null)) {
+                type = GreenResourceType.communityGarden;
+              } else if (tags['amenity'] == 'recycling') {
+                type = GreenResourceType.recyclingCenter;
+              } else if (tags['amenity'] == 'marketplace' &&
+                  (tags['produce'] != null ||
+                      tags['organic'] != null ||
+                      name.toLowerCase().contains('tani'))) {
+                type = GreenResourceType.farmersMarket;
+              } else if (tags['amenity'] == 'bicycle_rental' ||
+                  tags['amenity'] == 'bicycle_sharing') {
+                type = GreenResourceType.bikeSharingStation;
+              } else if (tags['amenity'] == 'drinking_water') {
+                type = GreenResourceType.waterFountain;
+              }
             }
-            
-            // Hanya tambahkan jika tipe berhasil diidentifikasi (bukan 'other' kecuali memang itu tujuannya)
-            // atau jika query spesifik untuk tipe 'other'
-            // Untuk sekarang, kita asumsikan query sudah spesifik, jadi semua hasil relevan
+
+            // Skip resources with invalid coordinates
+            final latitude = element['lat'] ??
+                (element['center'] != null ? element['center']['lat'] : null);
+            final longitude = element['lon'] ??
+                (element['center'] != null ? element['center']['lon'] : null);
+            if (latitude == null || longitude == null) continue;
+
             resources.add(GreenResourceModel(
-              id: 'osm_$osmId', // Prefix untuk menandakan sumber
+              id: 'osm_$osmId',
               name: name,
               type: type,
-              address: address.isNotEmpty ? address : 'Detail lokasi tidak tersedia',
-              latitude: element['lat'] ?? (element['center'] != null ? element['center']['lat'] : null),
-              longitude: element['lon'] ?? (element['center'] != null ? element['center']['lon'] : null),
+              address: address.isNotEmpty ? address : 'Location details unavailable',
+              latitude: latitude,
+              longitude: longitude,
               source: GreenResourceSource.osm,
-              rawData: element, // Simpan data mentah untuk detail
+              rawData: element,
               description: tags['description'] ?? tags['note'],
               openingHours: tags['opening_hours'],
             ));
           }
         }
+        print('Fetched ${resources.length} resources from Overpass API');
+        return resources;
+      } else {
+        print('Overpass API Error: ${response.statusCode} - ${response.body}');
+        throw Exception('Failed to fetch data from Overpass API: ${response.statusCode}');
       }
-      return resources;
-    } else {
-      print('Overpass API Error: ${response.statusCode} - ${response.body}');
-      throw Exception('Gagal mengambil data dari Overpass API');
+    } catch (e) {
+      print('Error fetching from Overpass API: $e');
+      rethrow;
     }
   }
 
   String _formatAddress(Map<String, dynamic> tags) {
-    // Membuat alamat dari tag OSM, ini bisa sangat bervariasi
     List<String> addressParts = [];
     if (tags['addr:street'] != null) addressParts.add(tags['addr:street']);
     if (tags['addr:housenumber'] != null) addressParts.add(tags['addr:housenumber']);
     if (tags['addr:postcode'] != null) addressParts.add(tags['addr:postcode']);
     if (tags['addr:city'] != null) addressParts.add(tags['addr:city']);
-    if (tags['addr:suburb'] != null && !addressParts.contains(tags['addr:city'])) addressParts.add(tags['addr:suburb']);
-
+    if (tags['addr:suburb'] != null && !addressParts.contains(tags['addr:city'])) {
+      addressParts.add(tags['addr:suburb']);
+    }
 
     if (addressParts.isEmpty && tags['name'] != null) {
-        // Jika tidak ada tag alamat formal, gunakan deskripsi lokasi umum jika ada
-        if(tags['is_in'] != null) return "${tags['name']}, ${tags['is_in']}";
-        return tags['name']!; // Fallback ke nama jika tidak ada alamat
+      if (tags['is_in'] != null) return "${tags['name']}, ${tags['is_in']}";
+      return tags['name']!;
     }
     return addressParts.join(', ');
   }
 
   @override
   Future<List<GreenResourceModel>> fetchGreenSpaces(double lat, double lon, {double radius = 5000}) {
-    // Contoh bounding box untuk Pekanbaru (perkiraan)
-    // double minLat = 0.44; double minLon = 101.36;
-    // double maxLat = 0.60; double maxLon = 101.52;
-    // String bbox = "$minLat,$minLon,$maxLat,$maxLon";
-    // Atau menggunakan around filter
-    String around = "(around:$radius,$lat,$lon)";
-
+    String around = '(around:$radius,$lat,$lon)';
     String query = """
       [out:json][timeout:25];
       (
@@ -112,7 +128,7 @@ class OverpassApiSourceImpl implements OverpassApiSource {
         node["leisure"="garden"]$around;
         way["leisure"="garden"]$around;
         relation["leisure"="garden"]$around;
-        node["landuse"="allotments"]$around; // Kebun komunitas
+        node["landuse"="allotments"]$around;
         way["landuse"="allotments"]$around;
         node["boundary"="national_park"]$around;
         way["boundary"="national_park"]$around;
@@ -123,12 +139,12 @@ class OverpassApiSourceImpl implements OverpassApiSource {
       );
       out center;
     """;
-    return _fetchFromOverpass(query);
+    return fetchFromOverpass(query);
   }
-  
+
   @override
   Future<List<GreenResourceModel>> fetchRecyclingCenters(double lat, double lon, {double radius = 5000}) {
-    String around = "(around:$radius,$lat,$lon)";
+    String around = '(around:$radius,$lat,$lon)';
     String query = """
       [out:json][timeout:25];
       (
@@ -137,12 +153,12 @@ class OverpassApiSourceImpl implements OverpassApiSource {
       );
       out center;
     """;
-    return _fetchFromOverpass(query);
+    return fetchFromOverpass(query);
   }
 
   @override
   Future<List<GreenResourceModel>> fetchBikeSharing(double lat, double lon, {double radius = 5000}) {
-    String around = "(around:$radius,$lat,$lon)";
+    String around = '(around:$radius,$lat,$lon)';
     String query = """
       [out:json][timeout:25];
       (
@@ -153,12 +169,12 @@ class OverpassApiSourceImpl implements OverpassApiSource {
       );
       out center;
     """;
-     return _fetchFromOverpass(query);
+    return fetchFromOverpass(query);
   }
 
-   @override
+  @override
   Future<List<GreenResourceModel>> fetchDrinkingWater(double lat, double lon, {double radius = 5000}) {
-    String around = "(around:$radius,$lat,$lon)";
+    String around = '(around:$radius,$lat,$lon)';
     String query = """
       [out:json][timeout:25];
       (
@@ -166,6 +182,6 @@ class OverpassApiSourceImpl implements OverpassApiSource {
       );
       out center;
     """;
-     return _fetchFromOverpass(query);
+    return fetchFromOverpass(query);
   }
 }

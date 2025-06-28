@@ -8,22 +8,19 @@ class GreenResourcesViewModel extends ChangeNotifier {
   final GetGreenResourcesUseCase _getGreenResourcesUseCase;
   final GetGreenResourceByIdUseCase _getGreenResourceByIdUseCase;
 
-  // Koordinat default untuk Pekanbaru (perkiraan pusat kota)
-  // Anda mungkin ingin mendapatkan ini dari GPS pengguna atau input lain di masa depan
   final double _defaultLatitude = 0.5071;
   final double _defaultLongitude = 101.4478;
-
 
   GreenResourcesViewModel({
     required GetGreenResourcesUseCase getGreenResourcesUseCase,
     required GetGreenResourceByIdUseCase getGreenResourceByIdUseCase,
   })  : _getGreenResourcesUseCase = getGreenResourcesUseCase,
         _getGreenResourceByIdUseCase = getGreenResourceByIdUseCase {
-    fetchGreenResources(); // Ambil resources saat ViewModel dibuat
+    fetchGreenResources();
   }
 
   GreenResourcesStatus _status = GreenResourcesStatus.initial;
-  List<GreenResourceModel> _allFetchedResources = []; // Simpan semua hasil fetch awal
+  List<GreenResourceModel> _allFetchedResources = [];
   GreenResourceModel? _selectedResource;
   String? _errorMessage;
   GreenResourceType? _selectedFilterType;
@@ -43,33 +40,39 @@ class GreenResourcesViewModel extends ChangeNotifier {
   Future<void> fetchGreenResources({List<GreenResourceType>? types}) async {
     _status = GreenResourcesStatus.loading;
     _errorMessage = null;
-    // Jika types tidak null, kita sedang melakukan filter fetch, jadi jangan hapus _selectedFilterType
-    // Jika types null, ini adalah fetch umum, jadi _selectedFilterType mungkin sudah di-set
     notifyListeners();
     try {
-      // Gunakan _selectedFilterType jika ada, atau types dari argumen, atau ambil semua
       final typesToFetch = types ?? (_selectedFilterType != null ? [_selectedFilterType!] : null);
       _allFetchedResources = await _getGreenResourcesUseCase(_defaultLatitude, _defaultLongitude, typesToFetch: typesToFetch);
       _status = GreenResourcesStatus.loaded;
+      print('Fetched ${_allFetchedResources.length} resources');
     } catch (e) {
       _status = GreenResourcesStatus.error;
-      _errorMessage = "Gagal memuat sumber daya: ${e.toString()}";
-      _allFetchedResources = []; // Kosongkan jika error
+      _errorMessage = 'Failed to load resources: $e';
+      _allFetchedResources = [];
+      print('Error in fetchGreenResources: $e');
     }
     notifyListeners();
   }
 
   Future<void> fetchGreenResourceById(String id, GreenResourceSource source) async {
-    // Coba cari dari daftar yang sudah ada dulu
-    _selectedResource = _allFetchedResources.firstWhere((res) => res.id == id, orElse: () => null as GreenResourceModel);
+    _selectedResource = _allFetchedResources.firstWhere(
+      (res) => res.id == id,
+      orElse: () => GreenResourceModel(
+        id: '',
+        name: '',
+        type: GreenResourceType.other,
+        address: '',
+        source: GreenResourceSource.other,
+      ),
+    );
 
-    if (_selectedResource != null) {
-        _status = GreenResourcesStatus.loaded;
-        notifyListeners();
-        return;
+    if (_selectedResource?.id.isNotEmpty == true) {
+      _status = GreenResourcesStatus.loaded;
+      notifyListeners();
+      return;
     }
-    
-    // Jika tidak ada, coba ambil detail (implementasi repo masih placeholder)
+
     _status = GreenResourcesStatus.loading;
     _errorMessage = null;
     notifyListeners();
@@ -77,12 +80,12 @@ class GreenResourcesViewModel extends ChangeNotifier {
       _selectedResource = await _getGreenResourceByIdUseCase(id, source);
       _status = GreenResourcesStatus.loaded;
       if (_selectedResource == null) {
-        _errorMessage = "Sumber daya tidak ditemukan.";
+        _errorMessage = 'Resource not found.';
         _status = GreenResourcesStatus.error;
       }
     } catch (e) {
       _status = GreenResourcesStatus.error;
-      _errorMessage = e.toString();
+      _errorMessage = 'Failed to load resource: $e';
     }
     notifyListeners();
   }
