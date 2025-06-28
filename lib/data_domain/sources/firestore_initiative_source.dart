@@ -5,6 +5,8 @@ abstract class FirestoreInitiativeSource {
   Future<List<InitiativeModel>> getInitiatives();
   Future<String> addInitiative(InitiativeModel initiative);
   Future<InitiativeModel?> getInitiativeById(String id);
+  Future<void> updateInitiative(InitiativeModel initiative);
+  Future<void> deleteInitiative(String id);
 }
 
 class FirestoreInitiativeSourceImpl implements FirestoreInitiativeSource {
@@ -53,6 +55,27 @@ class FirestoreInitiativeSourceImpl implements FirestoreInitiativeSource {
     } catch (e) {
       print("Error fetching initiative by ID ($id): $e");
       throw Exception("Failed to fetch initiative details.");
+    }
+  }
+
+  @override
+  Future<void> updateInitiative(InitiativeModel initiative) async {
+    if (initiative.id == null) throw Exception("Initiative ID is required for update.");
+    try {
+      await _initiativesCollection.doc(initiative.id).update(initiative.toFirestore());
+    } catch (e) {
+      print("Error updating initiative: $e");
+      throw Exception("Failed to update initiative.");
+    }
+  }
+
+  @override
+  Future<void> deleteInitiative(String id) async {
+    try {
+      await _initiativesCollection.doc(id).delete();
+    } catch (e) {
+      print("Error deleting initiative: $e");
+      throw Exception("Failed to delete initiative.");
     }
   }
 }

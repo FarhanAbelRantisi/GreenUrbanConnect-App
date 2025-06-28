@@ -10,13 +10,18 @@ class InitiativesViewModel extends ChangeNotifier {
   final AddInitiativeUseCase _addInitiativeUseCase;
   final GetInitiativeByIdUseCase _getInitiativeByIdUseCase;
   final AuthViewModel _authViewModel; // To get current user ID and name
+  final UpdateInitiativeUseCase _updateInitiativeUseCase;
+  final DeleteInitiativeUseCase _deleteInitiativeUseCase;
 
   InitiativesViewModel({
     required GetInitiativesUseCase getInitiativesUseCase,
     required AddInitiativeUseCase addInitiativeUseCase,
     required GetInitiativeByIdUseCase getInitiativeByIdUseCase,
     required AuthViewModel authViewModel,
-  })  : _getInitiativesUseCase = getInitiativesUseCase,
+    required UpdateInitiativeUseCase updateInitiativeUseCase,
+    required DeleteInitiativeUseCase deleteInitiativeUseCase,
+  })  : _updateInitiativeUseCase = updateInitiativeUseCase,
+        _deleteInitiativeUseCase = deleteInitiativeUseCase,_getInitiativesUseCase = getInitiativesUseCase,
         _addInitiativeUseCase = addInitiativeUseCase,
         _getInitiativeByIdUseCase = getInitiativeByIdUseCase,
         _authViewModel = authViewModel {
@@ -116,5 +121,60 @@ class InitiativesViewModel extends ChangeNotifier {
     _selectedInitiative = null;
     // Optionally reset status if needed, or just notify
     notifyListeners();
+  }
+
+  Future<bool> updateInitiative(InitiativeModel initiative) async {
+    _status = InitiativesStatus.submitting;
+    _errorMessage = null;
+    notifyListeners();
+
+    final currentUser = _authViewModel.currentUser;
+    if (currentUser == null || initiative.organizerId != currentUser.id) {
+      _status = InitiativesStatus.error;
+      _errorMessage = "Only the organizer can update this initiative.";
+      notifyListeners();
+      return false;
+    }
+
+    try {
+      await _updateInitiativeUseCase(initiative);
+      await fetchInitiativeById(initiative.id!); // Refresh the selected initiative
+      _status = InitiativesStatus.submitted;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _status = InitiativesStatus.error;
+      _errorMessage = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deleteInitiative(String id) async {
+    _status = InitiativesStatus.submitting;
+    _errorMessage = null;
+    notifyListeners();
+
+    final currentUser = _authViewModel.currentUser;
+    final initiative = _selectedInitiative;
+    if (currentUser == null || initiative == null || initiative.organizerId != currentUser.id) {
+      _status = InitiativesStatus.error;
+      _errorMessage = "Only the organizer can delete this initiative.";
+      notifyListeners();
+      return false;
+    }
+
+    try {
+      await _deleteInitiativeUseCase(id);
+      await fetchInitiatives(); // Refresh the list
+      _status = InitiativesStatus.submitted;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _status = InitiativesStatus.error;
+      _errorMessage = e.toString();
+      notifyListeners();
+      return false;
+    }
   }
 }

@@ -4,11 +4,14 @@ import 'package:green_urban_connect/viewmodel/initiatives_viewmodel.dart';
 import 'package:green_urban_connect/views/widgets/common/custom_button.dart';
 import 'package:green_urban_connect/views/widgets/common/custom_textfield.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart'; // For date formatting and picking
-import 'package:go_router/go_router.dart'; // For navigation
+import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class ProposeInitiativeScreen extends StatefulWidget {
-  static const routeName = 'propose-initiative'; // Used for named routes within a shell
+  static const routeName = 'propose-initiative';
   const ProposeInitiativeScreen({super.key});
 
   @override
@@ -20,10 +23,36 @@ class _ProposeInitiativeScreenState extends State<ProposeInitiativeScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
-  final _imageUrlController = TextEditingController(); // Optional
+  final _imageUrlController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now();
-  InitiativeCategory _selectedCategory = InitiativeCategory.other; // Default category
+  InitiativeCategory _selectedCategory = InitiativeCategory.other;
+
+  File? _selectedImage;
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<String?> _uploadImage(InitiativeModel initiative) async {
+    if (_selectedImage == null) return null;
+    try {
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('initiatives/${initiative.organizerId}/${DateTime.now().millisecondsSinceEpoch}.jpg');
+      final uploadTask = await storageRef.putFile(_selectedImage!);
+      return await uploadTask.ref.getDownloadURL();
+    } catch (e) {
+      print('Error uploading image: $e');
+      return null;
+    }
+  }
 
   @override
   void dispose() {
@@ -69,24 +98,30 @@ class _ProposeInitiativeScreenState extends State<ProposeInitiativeScreen> {
         location: _locationController.text.trim(),
         date: _selectedDate,
         category: _selectedCategory,
-        imageUrl: _imageUrlController.text.trim().isNotEmpty ? _imageUrlController.text.trim() : null,
-        organizerId: '', // This will be set in the ViewModel using AuthViewModel
+        organizerId: '', // Will be set in ViewModel
       );
 
-      final success = await viewModel.addInitiative(newInitiative);
+      final imageUrl = await _uploadImage(newInitiative);
+      final initiativeWithImage = InitiativeModel(
+        title: newInitiative.title,
+        description: newInitiative.description,
+        location: newInitiative.location,
+        date: newInitiative.date,
+        category: newInitiative.category,
+        organizerId: newInitiative.organizerId,
+        imageUrl: imageUrl,
+      );
 
+      final success = await viewModel.addInitiative(initiativeWithImage);
       if (mounted) {
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Initiative proposed successfully!'), backgroundColor: Colors.green),
           );
-          context.pop(); // Go back to the initiatives hub screen
+          context.pop();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(viewModel.errorMessage ?? 'Failed to propose initiative.'),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text(viewModel.errorMessage ?? 'Failed to propose initiative.'), backgroundColor: Colors.red),
           );
         }
       }
@@ -132,15 +167,25 @@ class _ProposeInitiativeScreenState extends State<ProposeInitiativeScreen> {
                 validator: (value) => value == null || value.isEmpty ? 'Please enter a location' : null,
                 prefixIcon: Icons.location_on_outlined,
               ),
+
               const SizedBox(height: 16),
-              CustomTextField(
-                controller: _imageUrlController,
-                labelText: 'Image URL (Optional)',
-                hintText: 'e.g., [https://example.com/image.png](https://example.com/image.png)',
-                keyboardType: TextInputType.url,
-                prefixIcon: Icons.image_outlined,
+
+              _selectedImage != null
+                  ? Image.file(_selectedImage!, height: 150, fit: BoxFit.cover)
+                  : Container(
+                      height: 150,
+                      color: Colors.grey[200],
+                      child: const Center(child: Text('No image selected')),
+                    ),
+              const SizedBox(height: 8),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.image_outlined),
+                label: const Text('Pick Image from Gallery'),
+                onPressed: _pickImage,
               ),
+
               const SizedBox(height: 16),
+              
               // Date Picker
               ListTile(
                 leading: const Icon(Icons.calendar_today_outlined),

@@ -64,6 +64,8 @@ void setupServiceLocator() {
   sl.registerLazySingleton(() => GetInitiativesUseCase(sl()));
   sl.registerLazySingleton(() => AddInitiativeUseCase(sl()));
   sl.registerLazySingleton(() => GetInitiativeByIdUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateInitiativeUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteInitiativeUseCase(sl()));
   // Urban Issues
   sl.registerLazySingleton(() => GetUrbanIssuesUseCase(sl()));
   sl.registerLazySingleton(() => AddUrbanIssueUseCase(sl()));
@@ -86,6 +88,8 @@ void setupServiceLocator() {
         addInitiativeUseCase: sl(),
         getInitiativeByIdUseCase: sl(),
         authViewModel: sl(),
+        deleteInitiativeUseCase: sl(),
+        updateInitiativeUseCase: sl()
       ));
   sl.registerFactory(() => UrbanIssueViewModel(
         getUrbanIssuesUseCase: sl(),

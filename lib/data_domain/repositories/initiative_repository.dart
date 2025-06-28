@@ -2,9 +2,11 @@ import 'package:green_urban_connect/data_domain/models/initiative_model.dart';
 import 'package:green_urban_connect/data_domain/sources/firestore_initiative_source.dart';
 
 abstract class IInitiativeRepository{
-Future<List<InitiativeModel>> getInitiatives();
-Future<String> addInitiative(InitiativeModel initiative);
-Future<InitiativeModel?> getInitiativeById(String id);
+  Future<List<InitiativeModel>> getInitiatives();
+  Future<String> addInitiative(InitiativeModel initiative);
+  Future<InitiativeModel?> getInitiativeById(String id);
+  Future<void> updateInitiative(InitiativeModel initiative);
+  Future<void> deleteInitiative(String id);
 }
 
 class InitiativeRepositoryImpl implements IInitiativeRepository {
@@ -27,14 +29,13 @@ class InitiativeRepositoryImpl implements IInitiativeRepository {
     return _firestoreInitiativeSource.getInitiativeById(id);
   }
 
-  // Implement update and delete if FirestoreInitiativeSource supports them
-  // @override
-  // Future<void> updateInitiative(InitiativeModel initiative) {
-  //   return _firestoreInitiativeSource.updateInitiative(initiative);
-  // }
+  @override
+  Future<void> updateInitiative(InitiativeModel initiative) {
+    return _firestoreInitiativeSource.updateInitiative(initiative);
+  }
 
-  // @override
-  // Future<void> deleteInitiative(String id) {
-  //   return _firestoreInitiativeSource.deleteInitiative(id);
-  // }
+  @override
+  Future<void> deleteInitiative(String id) {
+    return _firestoreInitiativeSource.deleteInitiative(id);
+  }
 }

@@ -28,6 +28,20 @@ class GetInitiativeByIdUseCase {
   }
 }
 
-// Add use cases for update and delete if needed
-// class UpdateInitiativeUseCase { ... }
-// class DeleteInitiativeUseCase { ... }
+class UpdateInitiativeUseCase {
+  final IInitiativeRepository repository;
+  UpdateInitiativeUseCase(this.repository);
+
+  Future<void> call(InitiativeModel initiative) {
+    return repository.updateInitiative(initiative);
+  }
+}
+
+class DeleteInitiativeUseCase {
+  final IInitiativeRepository repository;
+  DeleteInitiativeUseCase(this.repository);
+
+  Future<void> call(String id) {
+    return repository.deleteInitiative(id);
+  }
+}

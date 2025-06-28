@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:green_urban_connect/data_domain/models/initiative_model.dart';
+import 'package:green_urban_connect/viewmodel/auth_viewmodel.dart';
 import 'package:green_urban_connect/viewmodel/initiatives_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart'; // For date formatting
@@ -15,6 +17,7 @@ class InitiativeDetailScreen extends StatefulWidget {
 }
 
 class _InitiativeDetailScreenState extends State<InitiativeDetailScreen> {
+
   @override
   void initState() {
     super.initState();
@@ -27,8 +30,6 @@ class _InitiativeDetailScreenState extends State<InitiativeDetailScreen> {
 
   @override
   void dispose() {
-    // Clear the selected initiative when leaving the screen
-    // This is important if the user navigates back and then to another detail screen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) { // Check if the widget is still in the tree
         Provider.of<InitiativesViewModel>(context, listen: false).clearSelectedInitiative();
@@ -38,14 +39,60 @@ class _InitiativeDetailScreenState extends State<InitiativeDetailScreen> {
   }
 
 
-  @override
   Widget build(BuildContext context) {
     final initiativesViewModel = Provider.of<InitiativesViewModel>(context);
+    final authViewModel = Provider.of<AuthViewModel>(context);
     final initiative = initiativesViewModel.selectedInitiative;
+    final isOrganizer = initiative != null && authViewModel.currentUser?.id == initiative.organizerId;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(initiative?.title ?? 'Initiative Details'),
+        actions: isOrganizer
+            ? [
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () {
+                    context.pushNamed('edit-initiative', extra: initiative);
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Delete Initiative'),
+                        content: const Text('Are you sure you want to delete this initiative?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirm == true) {
+                      final success = await initiativesViewModel.deleteInitiative(initiative!.id!);
+                      if (success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Initiative deleted successfully!'), backgroundColor: Colors.green),
+                        );
+                        context.pop();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(initiativesViewModel.errorMessage ?? 'Failed to delete initiative.'), backgroundColor: Colors.red),
+                        );
+                      }
+                    }
+                  },
+                ),
+              ]
+            : null,
       ),
       body: _buildBody(initiativesViewModel, initiative),
     );
@@ -130,7 +177,6 @@ class _InitiativeDetailScreenState extends State<InitiativeDetailScreen> {
               icon: const Icon(Icons.eco_outlined),
               label: const Text('Join Initiative / Express Interest'),
               onPressed: () {
-                // TODO: Implement join initiative functionality
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Join functionality coming soon!')),
                 );

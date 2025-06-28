@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:green_urban_connect/data_domain/models/initiative_model.dart';
 import 'package:green_urban_connect/viewmodel/initiatives_viewmodel.dart';
 import 'package:green_urban_connect/views/screen/initiatives/initiative_detail_screen.dart';
 import 'package:green_urban_connect/views/screen/initiatives/propose_initiative_screen.dart';
 import 'package:green_urban_connect/views/widgets/initiatives/initiative_list_item.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart'; // For date formatting
 
 class InitiativesHubScreen extends StatefulWidget {
   static const routeName = '/initiatives';
@@ -20,11 +18,6 @@ class _InitiativesHubScreenState extends State<InitiativesHubScreen> {
   @override
   void initState() {
     super.initState();
-    // Fetch initiatives when the screen is initialized if not already loaded
-    // Or you can rely on the ViewModel's constructor to do this.
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   Provider.of<InitiativesViewModel>(context, listen: false).fetchInitiatives();
-    // });
   }
 
   @override
